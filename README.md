@@ -1,4 +1,4 @@
-# **MQTT-LLM Integration: Utilizing US College Data from 2022-2023**
+# **ML Red Teaming: Robustness Testing and Mitigation Strategy Development for LLMs via Gemini API**
 
 An intelligent system that integrates MQTT messaging with Google's Gemini LLM to provide real-time analysis of U.S. college data. This system enables personalized insights, historic and notable information for college-bound students by processing and analyzing college information in real-time.
 
@@ -81,16 +81,6 @@ pip install paho-mqtt google-generativeai colorama
 ## Usage
 
 ### 1. Start the Publisher
-
-```bash
-python pub.py
-```
-
-This will:
-- Connect to the MQTT broker
-- Load the college dataset
-- Start publishing random college data every second
-- Display successful publishing messages
 
 ### 2. Start the Subscriber
 
