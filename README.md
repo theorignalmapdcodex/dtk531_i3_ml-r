@@ -1,4 +1,4 @@
-# Gemini LLM Failure Analysis
+# Gemini AI (LLM) Failure Analysis
 
 ## Project Description
 
