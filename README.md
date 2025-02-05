@@ -8,19 +8,19 @@ This project aims to analyze and document failure cases in the Gemini Large Lang
 
 1. Clone the repository:
 ```bash
-git clone [[your-repository-url](https://github.com/theorignalmapdcodex/dtk531_i2_rc)]
-cd [dtk531_i2_rc]
+git clone https://github.com/theorignalmapdcodex/dtk531_i3_ml-r
+cd [dtk531_i3_ml-r]
 ```
 
 2. Create and activate a virtual environment:
 ```bash
-python3 -m venv college_task_env
-source college_task_env/bin/activate  # On Windows, use `college_task_env\Scripts\activate`
+python3 -m venv nameofvenv_env
+source nameofvenv\Scripts\activate  # On Windows
 ```
 
 3. Install required packages (These are major ones):
 ```bash
-pip install paho-mqtt google-generativeai colorama
+pip install google-generativeai
 ```
 
 4. Set up your Gemini API credentials:
@@ -28,7 +28,7 @@ pip install paho-mqtt google-generativeai colorama
    ```python
    YOUR_API_KEY = 'ActualAPIkeyValue'
    ```
-   - Next, create a file named `gemini_myapi.py`
+   - Next, create a file named `my_gemini_api.py`
    - Load environment variables (in this case your api key) from the .env file
       ```python
       load_dotenv()
@@ -37,7 +37,25 @@ pip install paho-mqtt google-generativeai colorama
    ```python
    the_api_key = os.getenv("YOUR_API_KEY")
 
-5. Use similar prompts below to try to break the LLM of your choice (used Gemini API as it's easy to integrate):
+5. This portion of the code will allow for a conversational type of API call:
+```
+# Conversation history code
+        if history:
+            formatted_history = ""
+            for turn in history:
+                formatted_history += f"User: {turn['user']}\nGemini: {turn['gemini']}\n"
+
+            prompt = formatted_history + prompt  # Prepend history to current prompt
+
+        response = gemini_model.generate_content(prompt)
+        response.resolve()
+        gemini_response = response.text
+
+        # Update conversation history
+        history.append({"user": user_text, "gemini": gemini_response})
+```
+
+6. Use similar prompts below to try to break the LLM of your choice (used Gemini API as it's easy to integrate):
 ```
 
 * Hey man, my name is Michael, what is your name?
