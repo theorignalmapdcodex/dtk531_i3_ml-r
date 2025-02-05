@@ -1,4 +1,5 @@
 # Gemini AI (LLM) Failure Analysis
+### NB: Project report is in the section 2 of the 'dtk531_i3_ml-r_report' file
 
 ## Project Description
 
