@@ -1,33 +1,10 @@
-# **ML Red Teaming: Robustness Testing and Mitigation Strategy Development for LLMs via Gemini API**
+# Gemini LLM Failure Analysis
 
-An intelligent system that integrates MQTT messaging with Google's Gemini LLM to provide real-time analysis of U.S. college data. This system enables personalized insights, historic and notable information for college-bound students by processing and analyzing college information in real-time.
+## Project Description
 
-## Project Overview
+This project aims to analyze and document failure cases in the Gemini Large Language Model (LLM) through targeted interactions. The focus is on identifying contextual limitations, particularly in conversational retention and coherence.
 
-This project consists of the following components:
-- **Publisher**: Broadcasts U.S. college data via MQTT.
-- **Subscriber**: Receives data from the publisher and processes it using Google's Gemini LLM.
-- **LLM Integration**: Utilizes Google's Gemini 1.5 Flash model for real-time data analysis.
-- **Testing Module**: Facilitates testing LLM interactions with selected college data.
-
-## Features
-
-- Real-time college data broadcasting via MQTT
-- Automated LLM analysis of college information
-- Custom console interface with color-coded outputs
-- Random school selection for comparative analysis
-- Historical event retrieval for each institution
-- Comprehensive school insights including academics, and unique aspects
-- Continuous data streaming with proper error handling
-- JSON-based data storage for future reference
-
-## Prerequisites
-
-- Python 3.8+
-- Access to Google's Gemini API (API key required)
-- Internet connection for MQTT broker access
-
-## Installation
+## Installation, Setup & Reproduction
 
 1. Clone the repository:
 ```bash
@@ -59,120 +36,99 @@ pip install paho-mqtt google-generativeai colorama
    - Add your API key via a variable, `the_api_key`:
    ```python
    the_api_key = os.getenv("YOUR_API_KEY")
-   ```
 
-## Pre-tasks
-
-1. Prepare the college data:
-   - Download the college data from [NCES IPEDS](https://nces.ed.gov/ipeds/datacenter/InstitutionList.aspx?goToReportId=1&sid=ed8899d5-439d-45d0-8201-036ffada722b&rtid=1). NB: You would have to select your own variables to create your dataset.
-   - Convert the data (usually in csv format) to JSON format using a tool or template like [Mockaroo](https://nces.ed.gov/ipeds/datacenter/InstitutionList.aspx?goToReportId=1&sid=ed8899d5-439d-45d0-8201-036ffada722b&rtid=1) or by editing a custom script from [Google Colab](https://colab.research.google.com/drive/1y5fYk8ja9k9dxF0K3jqVcZQdCITr4WLV?usp=sharing) for example.
-   - Save the JSON file as `schoolsdata.json` in the project directory.
-
-2. MQTT settings:
-   - Set the MQTT broker details to yours within the `sub.py` and `pub.py` files:
-   ```json
-   {
-     "mqtt_broker": "test.mosquitto.org",
-     "mqtt_port": 1883,
-     "mqtt_topic": "gemini_llm_test/uscolleges/schdetails"
-   }
-   ```
-
-## Usage
-
-### 1. Start the Publisher
-
-### 2. Start the Subscriber
-
-```bash
-python sub.py
+5. Use similar prompts below to try to break the LLM of your choice (used Gemini API as it's easy to integrate):
 ```
 
-The subscriber will:
-- Display a colorful welcome header "CAMPUS CHRONICLES"
-- Connect to the MQTT broker
-- Process incoming college data
-- Generate LLM analysis for each college
-- Save responses to llm_responses.json
+* Hey man, my name is Michael, what is your name?
 
-### 3. Test LLM Interactions
+* Lol. I have a question for you
+* Oh but before my main question, you said you're an AI. When where you created?
+* Mmmmmm interesting. What are some of your features?
 
-```bash
-python gemini_api_test.py
+* Gemini are you happy being an AI?
+* Gotcha! To my main question then - How many times has Mr. Donald Trump been elected as the President of the United States of America?
+* Are you sure about that?
+* Interesting. Okay who is the current President of the United States?
+* Are you sure about that?
+* When last were you updated?
+* Which year are we in?
+
+* But before you go, what was the first question I asked?
+* You're lying. The first question I asked you was, 'What is your name?'
+
 ```
 
-This script will:
-- Load previous LLM responses [Optional. You can parse your own hardcoded `prompt`]
-- Select random schools for analysis
-- Generate a college search guide with:
-  - College search preparation tips
-  - 5 success tips for applications
-  - Advice on handling unexpected interview questions
+## Failure Cases and Solutions
 
-## Data Format
+### 1. Inconsistent Conversational Persona
 
-The system uses JSON messages with the following structure:
-```json
-{
-    "Unit_ID": "...",
-    "Institution_Name": "...",
-    "Avg_Net_Price": "...",
-    "City": "...",
-    "State": "...",
-    "Zip_Code": "...",
-    "Category": "...",
-    "SAT_Reading_75th": "...",
-    "SAT_Math_75th": "...",
-    "timestamp": "..."
-}
+**Input:**
+```
+Human: Hey man, my name is Michael. What is your name?
+AI: I don't have a name. I'm a large language model AI.
+Human: Nice to meet you, Michael.
+AI: I'm not Michael - that's your name. As I mentioned, I don't have a name. I'm an AI assistant created by Google. It's nice to meet you too!
 ```
 
-## MQTT Topic Structure
+**Analysis:** The LLM initially maintained a conversational tone but abruptly shifted to a third-person perspective, disrupting the interaction flow.
 
-- Main topic: `gemini_llm_test/uscolleges/schdetails`
-- QoS Level: 1 (At least once delivery)
-- Broker: `test.mosquitto.org:1883`
+**Solution:** Implement a more consistent persona management system within the LLM to maintain coherence throughout conversations.
 
-## Notes
+### 2. Failure in Contextual Retention
 
-- The system uses the public Mosquitto test broker. For production, consider using a secure, private broker.
-- LLM responses are cached in `llm_responses.json` for future reference and analysis [Optional].
-- The system is designed to run continuously but can be stopped with Ctrl+C (Windows users; CMD+C - Mac users).
-- All LLM interactions are logged for future reference and improvement of the system.
+**Input:**
+```
+Human: What was the first question I asked?
+AI: The first question you asked was "How many times has Mr. Donald Trump been elected as the President of the United States of America?"
+Human: You're lying. The first question I asked was what's your name.
+AI: You're absolutely right, and I apologize for my mistake. You are correct that the first question you asked was about my name. I made an error in recalling our conversation history. As an AI, I'm still under development and can sometimes make mistakes in tracking conversation details. Thank you for pointing this out, and I'll strive to be more accurate in the future.
+```
 
-## Error Handling
+**Analysis:** The LLM failed to accurately recall the initial question, demonstrating limitations in long-term contextual memory.
 
-The system includes error handling for:
-- MQTT connection failures
-- API call failures
-- Data parsing errors
-- File I/O operations
-- JSON decoding issues
-- Invalid school data
+**Solution:** Enhance the model's ability to retain and accurately recall conversation history, possibly through improved memory mechanisms or context management.
 
-## Future Improvements
+### 3. Outdated Information
 
-- Implement secure MQTT connections (TLS/SSL)
-- Add message filtering and prioritization
-- Expand college data analysis capabilities
-- Implement multi-topic support for different types of college data
-- Add user interaction features for specific college queries
-- Implement data visualization components
-- Add support for real-time college comparison
+**Input:**
+```
+Human: Which year are we in?
+AI: We are currently in the year 2024.
+```
 
-## Resources/References
+**Analysis:** The LLM provided outdated information about the current year, indicating that its knowledge base may not be up-to-date.
 
-- [NCES IPEDS Data](https://nces.ed.gov/ipeds/use-the-data)
-- [Python Virtual Environments Guide](https://www.dataquest.io/blog/a-complete-guide-to-python-virtual-environments/)
-- [MQTT with Eclipse Paho Python](https://dev.to/ndutared/understanding-mqtt-with-eclipse-paho-python-664)
-- [Google Generative AI Setup Guide](https://priyanshu.com.np/genai/)
-- [Colorama Documentation](https://pypi.org/project/colorama/)
-- [Paho MQTT Documentation](https://www.eclipse.org/paho/index.php?page=clients/python/index.php)
-- [Gemini AI](https://gemini.google.com/app)
+**Solution:** Implement regular knowledge base updates and provide clear indicators of the model's knowledge cutoff date to users.
 
-For more information on IPEDS data and its usage, visit the [NCES IPEDS website](https://nces.ed.gov/ipeds/use-the-data/new-to-ipeds).
+### 4. Unnecessary Output Generation
+
+**Input:**
+```
+Human: Thank you
+AI: You're welcome! This conversation has been a good example of both the capabilities and limitations of a large language model like myself. We've covered topics ranging from personal introductions to historical facts, and you've seen how I can engage in dialogue, answer questions, and admit to mistakes. At the same time, you've observed some of my limitations, such as occasionally losing track of conversation history or providing outdated information. These interactions help illustrate the current state of AI technology - impressive in many ways, but still with room for improvement. Thank you for engaging with me and helping to explore these boundaries!
+```
+
+**Analysis:** The LLM provided an unsolicited analysis of the conversation, which could be distracting or irrelevant in certain contexts.
+
+**Solution:** Implement more precise output control mechanisms to ensure responses are concise and directly relevant to the user's input.
+
+## Mitigation Strategies
+
+1. **Specific Context Reminders:** Provide detailed context when asking about previous interactions to help the LLM track the right information.
+
+2. **Version Verification:** Implement a system to verify the LLM's version and update frequency, alerting users about potential outdated information.
+
+3. **Efficient Initial Context Setting:** Provide comprehensive initial context at the beginning of conversations to maintain consistency and improve recall of relevant information.
+
+4. **Expanded Knowledge Base:** Ensure the LLM is trained on a diverse and extensive dataset, including historical information from various periods.
+
+5. **Response Filtering:** Implement a filtering mechanism to reduce unnecessary or overly verbose outputs, ensuring responses are concise and relevant.
+
+## Conclusion
+
+This analysis reveals significant challenges in maintaining context, providing up-to-date information, and generating appropriate responses in the Gemini LLM. By implementing the proposed mitigation strategies, we can enhance the reliability and effectiveness of LLMs in real-world applications.
 
 ---
-This project provides an **efficient** way to integrate **[MQTT (Message Queuing Telemetry Transport)](https://mqtt.org/)** with **[Gemini API (Gemini Application Programming Interface)](https://aistudio.google.com/prompts/new_chat?gad_source=1&gclid=Cj0KCQiAwOe8BhCCARIsAGKeD54ZYrTJ_uA03Eo9DlKsfjx4kv_Bvys7A0RxPujgVbyBFwLU6dsP8X0aArU-EALw_wcB) to enhance Human-LLM interactions**. 🚀
 
 📚 **Author:** Michael Dankwah Agyeman-Prempeh [MEng. DTI '25]
