@@ -1,5 +1,5 @@
 # Gemini AI (LLM) Failure Analysis
-### NB: Project report is in the section 2 of the '[dtk531_i3_ml-r_report](dtk531_i3_ml-r_report.ipynb#my_report)' file
+### NB: Project report is in the section 2 of the '[dtk531_i3_ml-r_report](https://github.com/theorignalmapdcodex/dtk531_i3_ml-r/blob/main/dtk531_i3_ml-r_report.ipynb#my_report.ipynb#my_report)' file
 
 ## Project Description
 
